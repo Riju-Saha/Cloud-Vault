@@ -1,0 +1,38 @@
+CREATE DATABASE IF NOT EXISTS cloudvault
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+USE cloudvault;
+
+CREATE TABLE IF NOT EXISTS users (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(32) NOT NULL DEFAULT 'user',
+  last_login_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_users_role (role)
+);
+
+CREATE TABLE IF NOT EXISTS files (
+  id CHAR(36) NOT NULL PRIMARY KEY,
+  filename VARCHAR(255) NOT NULL,
+  original_name VARCHAR(255) NOT NULL,
+  mime_type VARCHAR(255) NOT NULL,
+  size BIGINT UNSIGNED NOT NULL DEFAULT 0,
+  path VARCHAR(500) NOT NULL,
+  checksum CHAR(64) DEFAULT NULL,
+  uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  user_id CHAR(36) NOT NULL,
+  INDEX idx_files_user_id (user_id),
+  INDEX idx_files_original_name (original_name),
+  INDEX idx_files_uploaded_at (uploaded_at),
+  CONSTRAINT fk_files_user_id
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+);
